@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repair Requests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4b0082;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .request-list {
+            width: 60%;
+        }
+
+        .edit-form-container {
+            width: 35%;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #4b0082;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+        }
+
+        .request-card {
+            border: 2px solid #4b0082;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease;
+        }
+
+        .request-card.active {
+            border-color: #ff6347;  /* Color when the request is active */
+        }
+
+        .request-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .request-actions button {
+            background-color: #4b0082;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .request-actions button:hover {
+            background-color: #5a2cae;
+        }
+
+        .new-request-button {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .new-request-button button {
+            background-color: #4b0082;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .new-request-button button:hover {
+            background-color: #5a2cae;
+        }
+
+        .edit-form input,
+        .edit-form select,
+        .edit-form textarea {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .edit-form button {
+            background-color: #4b0082;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+
+        .edit-form button:hover {
+            background-color: #5a2cae;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(100% - 22px);
+        }
+
+        .notification {
+            background-color: #11aa9b;
+            border: 1px solid #0e6d7d;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .exit-button {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+        }
+
+        .exit-button button {
+            background-color: #4b0082;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .exit-button button:hover {
+            background-color: #5a2cae; 
+        }
+        
+        .statistics {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 2px solid #4b0082;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-item {
+            margin: 10px 0;
+        }
+        .statistics-container {
+            border: 2px solid #4b0082; /* Фиолетовая рамка */
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+        .statistics-container h2 {
+            text-align: center;
+            color: #4b0082;
+        }
+
+        .statistics-row {
+            display: flex;
+            justify-content: space-around; /* Разместить элементы равномерно */
+            align-items: center;
+        }
+
+        .statistics-row p {
+            margin: 0 20px; /* Добавляем отступы между элементами */
+            font-size: 16px;
+        }
+
+        .highlight {
+            color: #4b0082; /* Фиолетовый цвет для выделенных данных */
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Repair Requests</h1>
+    <div class="exit-button">
+        <button onclick="window.location.href='http://127.0.0.1:5000/'">Exit</button>  
+    </div>  
+    <div class="new-request-button">
+        <button onclick="window.location.href='/add-request'">Add New Request</button>
+    </div>    
+    <div id="statisticsContainer" class="statistics-container">
+        <h2>Статистика</h2>
+        <div class="statistics-row">
+            <p id="completedCount">Количество выполненных заявок: <span class="highlight" id="completedCountValue">0</span></p>
+            <p id="averageTime">Среднее время выполнения заявки: <span class="highlight" id="averageTimeValue">0</span></p>
+            <p id="issueStatistics">Статистика по типам неисправностей: <span class="highlight" id="issueStatisticsValue">0</span></p>
+        </div>
+    </div>
+    {% if request.status == 'Выполнено' %}
+    <label for="completed_at">Completed At:</label>
+    <input type="datetime-local" id="completed_at" name="completed_at" value="{{ request.completed_at|strftime('%Y-%m-%dT%H:%M:%S') }}">
+    {% endif %}
+
+    
+   
+         <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search by request number or parameters..." onkeyup="searchRequests()">
+            </div>
+            <div id="notificationsContainer"></div>
+            <div class="request-list" id="requestsContainer"></div>
+        </div>
+
+    <div id="notificationsContainer"></div>
+        <div class="request-list" id="requestsContainer"></div>
+        <div class="edit-form-container" id="editFormContainer">
+            <h3>Edit Request</h3>
+            <div class="edit-form" id="editForm"></div>
+
+      
+    </div>
+
+    <script>
+       async function loadRequests() {
+    try {
+        const response = await fetch('/requests');
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
+        const requests = await response.json();
+        const container = document.getElementById('requestsContainer');
+        container.innerHTML = '';  // Clear the container
+
+        requests.forEach(req => {
+            const requestDiv = document.createElement('div');
+            requestDiv.classList.add('request-card');
+
+            // Проверка на корректность даты и форматирование
+            let formattedDate;
+            if (req.date_added) {
+                const date = new Date(req.date_added);
+                formattedDate = isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleString();
+            } else {
+                formattedDate = 'Дата не указана';
+            }
+
+            // Information about the request
+            requestDiv.innerHTML = `
+                <p><strong>Request #${req.request_number}</strong></p>
+                <p>Equipment: ${req.equipment_type}</p>
+                <p>Issue: ${req.issue_type}</p>
+                <p>Description: ${req.description}</p>
+                <p>Client: ${req.client}</p>
+                <p>Status: ${req.status}</p>
+                <p>Responsible person: ${req.responsible_person}</p>
+                <p>Comment: ${req.comments}</p>
+                <p>Date: ${formattedDate}</p> 
+               
+                <div class="request-actions">
+                    <button onclick="editRequest(${req.id}, this)">Edit</button>
+                    <button onclick="deleteRequest(${req.id})">Delete</button>
+                </div>
+            `;
+            container.appendChild(requestDiv);
+        });
+
+        // Вычисление статистики после загрузки запросов
+        calculateStatistics(requests);
+    } catch (error) {
+        console.error('Error loading requests:', error);
+    }
+}
+
+
+        async function editRequest(id, button) {
+            const requestCard = button.closest('.request-card');
+            const formContainer = document.getElementById('editFormContainer');
+            const editForm = document.getElementById('editForm');
+
+            try {
+                const response = await fetch(`/requests/${id}`);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+                const request = await response.json();
+
+                // Populate the edit form with existing request data
+                editForm.innerHTML = `
+                <textarea id="description-${id}" placeholder="Description">${request.description}</textarea>
+                <select id="status-${id}" onchange="toggleCompletedAtField(${id})">
+                    <option value="В ожидании" ${request.status === 'В ожидании' ? 'selected' : ''}>В ожидании</option>
+                    <option value="В работе" ${request.status === 'В работе' ? 'selected' : ''}>В работе</option>
+                    <option value="Выполнено" ${request.status === 'Выполнено' ? 'selected' : ''}>Выполнено</option>
+                </select>
+                <input type="text" id="responsible-${id}" placeholder="Responsible Person" value="${request.responsible_person || ''}">`;
+
+            if (request.status === 'Выполнено') {
+                editForm.innerHTML += `
+                    <label for="completed_at-${id}">Completed At:</label>
+                    <input type="datetime-local" id="completed_at-${id}" name="completed_at" value="${request.completed_at | strftime('%Y-%m-%dT%H:%M:%S')}">
+                `;
+            }
+            editForm.innerHTML += `<button onclick="saveChanges(${id})">Save Changes</button>`;
+
+
+                // Position the edit form next to the request card
+                formContainer.style.display = 'flex';  // Show the edit form container
+                formContainer.style.position = 'absolute';
+                formContainer.style.left = `${requestCard.offsetLeft + requestCard.offsetWidth + 20}px`; // Position it next to the request card
+                formContainer.style.top = `${requestCard.offsetTop}px`; // Align top with request card
+            } catch (error) {
+                console.error('Error loading request for editing:', error);
+            }
+        }
+        function toggleCompletedAtField(id) {
+    const status = document.getElementById(`status-${id}`).value;
+    const completedAtElement = document.getElementById(`completed_at-${id}`);
+    if (completedAtElement) {
+        completedAtElement.style.display = (status === 'Выполнено') ? 'block' : 'none';
+    } else {
+        console.error(`Element with id 'completed_at-${id}' not found.`);
+    }
+}
+
+
+
+        function notifyStatusChange(message) {
+    const notificationContainer = document.getElementById('notificationsContainer');
+    const notificationDiv = document.createElement('div');
+    notificationDiv.className = 'notification';
+    notificationDiv.innerText = message;
+    notificationContainer.appendChild(notificationDiv);
+
+    // Auto-remove notification after 5 seconds
+    setTimeout(() => {
+        notificationDiv.remove();
+    }, 5000);
+    }
+
+    function simulateStatusChange(requestNumber, newStatus) {
+        if (requestNumber && newStatus) {
+            const message = `Request #${requestNumber} has been updated to '${newStatus}'.`;
+            notifyStatusChange(message);
+        } else {
+            console.error('Request number or new status is undefined.');
+        }
+    }
+
+
+
+    async function saveChanges(id) {
+    const description = document.getElementById(`description-${id}`).value;
+    const status = document.getElementById(`status-${id}`).value;
+    const responsiblePerson = document.getElementById(`responsible-${id}`).value;
+
+    let completedAt = null;
+    if (status === "Выполнено") {
+    const completedAtElement = document.getElementById(`completed_at-${id}`);
+    if (completedAtElement) {
+        completedAt = completedAtElement.value; 
+    }
+}
+
+
+
+    try {
+        const response = await fetch(`/requests/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                description: description,
+                status: status,
+                responsible_person: responsiblePerson,
+                completed_at: completedAt // Передаем completed_at в тело запроса
+            })
+        });
+
+        if (response.ok) {
+            alert('Запрос успешно обновлен!');
+            loadRequests();
+            hideEditForm(); 
+            if (id !== undefined && status) {
+                simulateStatusChange(id, status); 
+            } else {
+                console.error("ID или статус не определены.");
+            }
+
+        } else {
+            alert('Не удалось обновить запрос');
+        }
+    } catch (error) {
+        console.error('Ошибка при обновлении запроса:', error);
+    }
+}
+
+
+        async function deleteRequest(id) {
+            if (confirm('Are you sure you want to delete this request?')) {
+                try {
+                    const response = await fetch(`/requests/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        alert('Request deleted successfully!');
+                        loadRequests();
+                    } else {
+                        alert('Failed to delete request');
+                    }
+                } catch (error) {
+                    console.error('Error deleting request:', error);
+                }
+            }
+        }
+        function searchRequests() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const requestCards = document.querySelectorAll('.request-card');
+            requestCards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(input) ? 'block' : 'none';
+            });
+        }
+
+
+
+
+        function hideEditForm() {
+            const formContainer = document.getElementById('editFormContainer');
+            formContainer.style.display = 'none';  // Hide the form
+        }
+        function calculateAverageTime(requests) {
+    let totalTime = 0; 
+    let completedCount = 0; 
+
+    requests.forEach(req => {
+        if (req.status === "Выполнено" && req.completed_at) {
+            const createdTime = new Date(req.date_added);
+            const completedTime = new Date(req.completed_at);
+            if (!isNaN(createdTime.getTime()) && !isNaN(completedTime.getTime())) {
+                const timeDifference = (completedTime - createdTime) / (1000 * 60); // Разница в минутах
+                totalTime += timeDifference;
+                completedCount++;
+            } else {
+                console.error(`Invalid date: createdTime - ${createdTime}, completedTime - ${completedTime}`);
+            }
+        }
+    });
+
+    const averageTime = completedCount > 0 ? (totalTime / completedCount) : 0;
+    return averageTime.toFixed(2);
+}
+
+
+    function calculateStatistics(requests) {
+        let completedCount = 0;
+        let issueStatistics = {};
+
+        requests.forEach(req => {
+            // Подсчитываем количество завершённых заявок
+            if (req.status === "Выполнено") {
+                completedCount++;
+            }
+
+            // Подсчёт статистики по типам неисправностей
+            if (req.issue_type in issueStatistics) {
+                issueStatistics[req.issue_type]++;
+            } else {
+                issueStatistics[req.issue_type] = 1;
+            }
+        });
+
+        // Получаем среднее время выполнения
+        const averageTime = calculateAverageTime(requests);
+        console.log(`Average Time: ${averageTime}`); // Логируем среднее время
+
+        // Обновляем данные в HTML
+        document.getElementById('completedCountValue').innerText = completedCount;
+        document.getElementById('averageTimeValue').innerText = `${averageTime} минут`;
+        document.getElementById('issueStatisticsValue').innerText = JSON.stringify(issueStatistics);
+    }
+
+function calculateIssueStatistics(requests) {
+    const issueCounts = {};
+
+    requests.forEach(req => {
+        if (issueCounts[req.issue_type]) {
+            issueCounts[req.issue_type]++;
+        } else {
+            issueCounts[req.issue_type] = 1;
+        }
+    });
+
+    return JSON.stringify(issueCounts); 
+}
+
+
+        window.onload = () => {
+            loadRequests();
+            // Simulate notifications every 10 seconds for demonstration purposes
+            setInterval(simulateStatusChange, 10000);
+        };
+    </script>
+</body>
+</html>

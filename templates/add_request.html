@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Repair Request</title>
+    <style>
+        /* Reuse styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4b0082;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .request-form input,
+        .request-form select,
+        .request-form textarea {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .request-form button {
+            background-color: #4b0082;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .request-form button:hover {
+            background-color: #5a2cae;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add New Repair Request</h1>
+
+    <div class="container">
+        <form class="request-form" id="requestForm">
+            <input type="text" id="request_number" placeholder="Request Number" required readonly>
+            <input  type="datetime-local" id="date_added" name="date_added" placeholder="Date Added" required readonly>
+            <input type="text" id="equipment_type" placeholder="Equipment Type" required>
+            <input type="text" id="issue_type" placeholder="Issue Type" required>
+            <textarea id="description" placeholder="Problem Description" required></textarea>
+            <input type="text" id="client" placeholder="Client" required>
+            <select id="status">
+                <option value="В ожидании">В ожидании</option>
+                <option value="В работе">В работе</option>
+                <option value="Выполнено">Выполнено</option>
+            </select>
+            <button type="button" onclick="saveRequest()">Save</button>
+        </form>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // Generate a unique request number (You might want to fetch the last number from the database)
+            const requestNumber = Date.now(); // Simple unique number based on timestamp
+            document.getElementById('request_number').value = requestNumber;
+
+            // Set the current date as the date added
+            const now = new Date().toISOString().slice(0, 19); // Формат: YYYY-MM-DDTHH:MM:SS
+            document.getElementById('date_added').value = now;
+        };
+
+        async function saveRequest() {
+            const requestNumber = document.getElementById('request_number').value;
+            const dateAdded = document.getElementById('date_added').value;
+            const equipmentType = document.getElementById('equipment_type').value;
+            const issueType = document.getElementById('issue_type').value;
+            const description = document.getElementById('description').value;
+            const client = document.getElementById('client').value;
+            const status = document.getElementById('status').value;
+
+            try {
+                const response = await fetch('/requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        request_number: requestNumber,
+                        date_added: dateAdded,
+                        equipment_type: equipmentType,
+                        issue_type: issueType,
+                        description: description,
+                        client: client,
+                        status: status
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Request added successfully!');
+                    // Redirect back to the main requests page
+                    window.location.href = '/requests_page';
+                } else {
+                    alert('Failed to add request');
+                }
+            } catch (error) {
+                console.error('Error adding request:', error);
+            }
+        }
+    </script>
+</body>
+</html>
