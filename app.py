@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///repair_requests.db'
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Инициализация базы данных для текущего приложения
+
 db.init_app(app)
 
 # Flask-Migrate для управления миграциями базы данных
@@ -46,7 +46,7 @@ def index():
 def register_page():
     return render_template('register.html')
 
-# Маршрут для отображения страницы заявок после входа
+
 
 
 # Загрузка пользователя
@@ -86,25 +86,19 @@ def register():
         data = request.json
         username = data.get('username')
         password = data.get('password')
-        role = data.get('role', 'user')  # Убедитесь, что роль по умолчанию указана
+        role = data.get('role', 'user') 
 
         if User.query.filter_by(username=username).first():
             return jsonify({'message': 'User already exists'}), 400
 
-        new_user = User(username=username, role=role)  # Убедитесь, что роль сохраняется
-        new_user.set_password(password)  # Убедитесь, что метод set_password работает
+        new_user = User(username=username, role=role) 
+        new_user.set_password(password) 
         db.session.add(new_user)
         db.session.commit()
 
         return jsonify({'message': 'User created successfully'}), 201
     except Exception as e:
         return jsonify({'message': str(e)}), 500
-
-
-
-
-
-
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
@@ -124,25 +118,25 @@ def login():
     try:
         username = request.form.get('username')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()  # Найти пользователя по имени
+        user = User.query.filter_by(username=username).first()  
 
         if user is None:
             return jsonify({'message': 'User not found'}), 404
 
-        if user.check_password(password):  # Проверка пароля
+        if user.check_password(password): 
             
-            login_user(user)  # Вход пользователя
-            session['user_role'] = user.role  # Установка роли в сессии
-            return redirect(url_for('requests_page'))  # Перенаправление на страницу запросов
+            login_user(user) 
+            session['user_role'] = user.role 
+            return redirect(url_for('requests_page')) 
         else:
             return jsonify({'message': 'Invalid credentials'}), 401
     except Exception as e:
         return jsonify({'message': 'Internal server error'}), 500
 @app.route('/admin_page')
 def admin_page():
-    if session.get('user_role') != 'admin':  # Проверка роли
-        return "Access denied", 403  # Запрет доступа
-    # Дальнейшая логика для админской страницы
+    if session.get('user_role') != 'admin':  
+        return "Access denied", 403 
+  
     return render_template('admin_page.html')
 
 @app.route('/some_protected_route')
@@ -151,11 +145,6 @@ def some_protected_route():
         return "Access denied", 403
     # Логика для обработки запроса
     return render_template('protected_page.html')
-
-
-
-
-
 
 # Выход из системы
 @app.route('/logout', methods=['GET'])
@@ -234,7 +223,7 @@ def get_or_update_request(id):
         
         })
 
-    # Обработка метода PUT (обновление заявки)
+
     data = request.json
 
     if 'description' in data:
@@ -300,7 +289,7 @@ def add_request():
     if not all(key in data for key in ['request_number', 'date_added', 'equipment_type', 'issue_type', 'description', 'client', 'status']):
         return jsonify({'message': 'Missing fields'}), 400
 
-    # Assuming you have the necessary logic to add a new request
+
     new_request = RepairRequest(
         request_number=data['request_number'],
         date_added=datetime.strptime(data['date_added'], '%Y-%m-%d'),

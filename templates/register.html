@@ -112,7 +112,7 @@ button:hover {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Registration successful:', data);
-                window.location.href = '/'; // Перенаправление на главную страницу или другую страницу
+                window.location.href = '/'; 
             } else {
                 const error = await response.json();
                 console.error('Registration failed:', error);

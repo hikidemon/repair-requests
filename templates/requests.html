@@ -242,9 +242,9 @@
     </div>
 
     <script>
-   const userRole = "{{ user_role }}";  // Вставьте роль пользователя в глобальную переменную
+   const userRole = "{{ user_role }}"; 
 
-// Проверка роли пользователя и вывод в консоль
+
 if (userRole === 'admin') {
     console.log("Вы администратор.");
 } else {
@@ -254,16 +254,11 @@ if (userRole === 'admin') {
                 document.getElementById('requestActions').style.display = 'block';
             }
             else {
-                document.getElementById('requestActions').style.display = 'none'; // Скрываем кнопку
+                document.getElementById('requestActions').style.display = 'none';
             }
 document.addEventListener('DOMContentLoaded', async function() {
-            // Проверка роли пользователя (это может быть получено из сессии или ответа от сервера)
-            const userRole = sessionStorage.getItem('user_role'); // Или используйте другой способ получения роли
-
-            // Показываем кнопку добавления, если пользователь админ
-         
-
-            // Загрузка заявок
+          
+            const userRole = sessionStorage.getItem('user_role'); 
             await loadRequests();
         });
 
@@ -315,7 +310,6 @@ async function loadRequests() {
     }
 }
 
-// Call the function to load requests on page load
 document.addEventListener('DOMContentLoaded', loadRequests);
 
 
@@ -544,18 +538,17 @@ function calculateIssueStatistics(requests) {
 
 window.onload = () => {
         loadRequests();
-        const userRole = '{{ session.get("user_role") }}'; // Получение роли пользователя из шаблона
+        const userRole = '{{ session.get("user_role") }}'; 
 
         if (userRole === 'user') {
-            // Скрыть элементы, доступные только для администраторов
-            const editButtons = document.querySelectorAll('.request-actions button:nth-child(1)'); // Кнопки "Edit"
-            const deleteButtons = document.querySelectorAll('.request-actions button:nth-child(2)'); // Кнопки "Delete"
+         
+            const editButtons = document.querySelectorAll('.request-actions button:nth-child(1)'); 
+            const deleteButtons = document.querySelectorAll('.request-actions button:nth-child(2)'); 
             
-            editButtons.forEach(button => button.style.display = 'none'); // Скрыть кнопки редактирования
-            deleteButtons.forEach(button => button.style.display = 'none'); // Скрыть кнопки удаления
+            editButtons.forEach(button => button.style.display = 'none'); 
+            deleteButtons.forEach(button => button.style.display = 'none');
         }
 
-        // Симуляция уведомлений каждые 10 секунд для демонстрационных целей
         setInterval(simulateStatusChange, 10000);
     };
     </script>
