@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, RepairRequest 
 from flask import redirect, request
 from flask import render_template, request, redirect, url_for
+
 app = Flask(__name__)
 from datetime import datetime
 from flask_migrate import Migrate
@@ -46,10 +47,7 @@ def register_page():
     return render_template('register.html')
 
 # Маршрут для отображения страницы заявок после входа
-@app.route('/requests_page')
-@login_required
-def requests_page():
-    return render_template('requests.html')
+
 
 # Загрузка пользователя
 @login_manager.user_loader
@@ -88,13 +86,13 @@ def register():
         data = request.json
         username = data.get('username')
         password = data.get('password')
-        role = data.get('role') 
+        role = data.get('role', 'user')  # Убедитесь, что роль по умолчанию указана
 
         if User.query.filter_by(username=username).first():
             return jsonify({'message': 'User already exists'}), 400
 
-        new_user = User(username=username, role=role)
-        new_user.set_password(password)
+        new_user = User(username=username, role=role)  # Убедитесь, что роль сохраняется
+        new_user.set_password(password)  # Убедитесь, что метод set_password работает
         db.session.add(new_user)
         db.session.commit()
 
@@ -105,27 +103,58 @@ def register():
 
 
 
+
+
+
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return redirect(url_for('login') + '?next=' + request.path)
 
-# Вход в систему
+def find_user_by_username(username):
+    return User.query.filter_by(username=username).first()
 
+@app.route('/requests_page')
+def requests_page():
+    return render_template('requests.html', user_role=session.get('user_role'))
+
+
+# Вход в систему
 @app.route('/login', methods=['POST'])
 def login():
     try:
-        data = request.json
-        username = data.get('username')
-        password = data.get('password')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()  # Найти пользователя по имени
 
-        user = User.query.filter_by(username=username).first()
-        if user is None or not user.check_password(password):
+        if user is None:
+            return jsonify({'message': 'User not found'}), 404
+
+        if user.check_password(password):  # Проверка пароля
+            
+            login_user(user)  # Вход пользователя
+            session['user_role'] = user.role  # Установка роли в сессии
+            return redirect(url_for('requests_page'))  # Перенаправление на страницу запросов
+        else:
             return jsonify({'message': 'Invalid credentials'}), 401
-
-       
-        return jsonify({'message': 'Login successful'}), 200
     except Exception as e:
-        return jsonify({'message': str(e)}), 500
+        return jsonify({'message': 'Internal server error'}), 500
+@app.route('/admin_page')
+def admin_page():
+    if session.get('user_role') != 'admin':  # Проверка роли
+        return "Access denied", 403  # Запрет доступа
+    # Дальнейшая логика для админской страницы
+    return render_template('admin_page.html')
+
+@app.route('/some_protected_route')
+def some_protected_route():
+    if session.get('user_role') != 'admin':
+        return "Access denied", 403
+    # Логика для обработки запроса
+    return render_template('protected_page.html')
+
+
+
+
 
 
 # Выход из системы
@@ -186,6 +215,8 @@ def get_requests():
 @app.route('/requests/<int:id>', methods=['GET', 'PUT'])
 @login_required
 def get_or_update_request(id):
+    if session.get('user_role') != 'admin':
+        return "Access denied", 403 
     req = RepairRequest.query.get(id)
     if not req:
         return jsonify({'message': 'Request not found'}), 404

@@ -86,6 +86,8 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-left:auto;
+            justify-content: center;
         }
 
         .new-request-button button:hover {
@@ -202,9 +204,12 @@
     <div class="exit-button">
         <button onclick="window.location.href='http://127.0.0.1:5000/'">Exit</button>  
     </div>  
-    <div class="new-request-button">
-        <button onclick="window.location.href='/add-request'">Add New Request</button>
+
+   
+    <div id="requestActions" class="new-request-button">
+        <button id="addRequestButton" onclick="window.location.href='/add-request'">Добавить новый запрос</button>
     </div>    
+  
     <div id="statisticsContainer" class="statistics-container">
         <h2>Статистика</h2>
         <div class="statistics-row">
@@ -237,7 +242,32 @@
     </div>
 
     <script>
-       async function loadRequests() {
+   const userRole = "{{ user_role }}";  // Вставьте роль пользователя в глобальную переменную
+
+// Проверка роли пользователя и вывод в консоль
+if (userRole === 'admin') {
+    console.log("Вы администратор.");
+} else {
+    console.log("Вы обычный пользователь.");
+}   
+            if (userRole === 'admin') {
+                document.getElementById('requestActions').style.display = 'block';
+            }
+            else {
+                document.getElementById('requestActions').style.display = 'none'; // Скрываем кнопку
+            }
+document.addEventListener('DOMContentLoaded', async function() {
+            // Проверка роли пользователя (это может быть получено из сессии или ответа от сервера)
+            const userRole = sessionStorage.getItem('user_role'); // Или используйте другой способ получения роли
+
+            // Показываем кнопку добавления, если пользователь админ
+         
+
+            // Загрузка заявок
+            await loadRequests();
+        });
+
+async function loadRequests() {
     try {
         const response = await fetch('/requests');
         if (!response.ok) {
@@ -246,11 +276,11 @@
         const requests = await response.json();
         const container = document.getElementById('requestsContainer');
         container.innerHTML = '';  
+        
         requests.forEach(req => {
             const requestDiv = document.createElement('div');
             requestDiv.classList.add('request-card');
 
-           
             let formattedDate;
             if (req.date_added) {
                 const date = new Date(req.date_added);
@@ -259,7 +289,6 @@
                 formattedDate = 'Дата не указана';
             }
 
-           
             requestDiv.innerHTML = `
                 <p><strong>Request #${req.request_number}</strong></p>
                 <p>Equipment: ${req.equipment_type}</p>
@@ -269,22 +298,25 @@
                 <p>Status: ${req.status}</p>
                 <p>Responsible person: ${req.responsible_person}</p>
                 <p>Comment: ${req.comments}</p>
-                <p>Date: ${formattedDate}</p> 
-               
+                <p>Date: ${formattedDate}</p>
                 <div class="request-actions">
-                    <button onclick="editRequest(${req.id}, this)">Edit</button>
-                    <button onclick="deleteRequest(${req.id})">Delete</button>
+                    ${userRole === 'admin' ? `
+                        <button onclick="editRequest(${req.id}, this)">Edit</button>
+                        <button onclick="deleteRequest(${req.id})">Delete</button>
+                    ` : ''}
                 </div>
             `;
             container.appendChild(requestDiv);
         });
 
-       
         calculateStatistics(requests);
     } catch (error) {
         console.error('Error loading requests:', error);
     }
 }
+
+// Call the function to load requests on page load
+document.addEventListener('DOMContentLoaded', loadRequests);
 
 
         async function editRequest(id, button) {
@@ -510,11 +542,22 @@ function calculateIssueStatistics(requests) {
 }
 
 
-        window.onload = () => {
-            loadRequests();
-           
-            setInterval(simulateStatusChange, 10000);
-        };
+window.onload = () => {
+        loadRequests();
+        const userRole = '{{ session.get("user_role") }}'; // Получение роли пользователя из шаблона
+
+        if (userRole === 'user') {
+            // Скрыть элементы, доступные только для администраторов
+            const editButtons = document.querySelectorAll('.request-actions button:nth-child(1)'); // Кнопки "Edit"
+            const deleteButtons = document.querySelectorAll('.request-actions button:nth-child(2)'); // Кнопки "Delete"
+            
+            editButtons.forEach(button => button.style.display = 'none'); // Скрыть кнопки редактирования
+            deleteButtons.forEach(button => button.style.display = 'none'); // Скрыть кнопки удаления
+        }
+
+        // Симуляция уведомлений каждые 10 секунд для демонстрационных целей
+        setInterval(simulateStatusChange, 10000);
+    };
     </script>
 </body>
 </html>
