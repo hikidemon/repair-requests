@@ -2,13 +2,13 @@ from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User, RepairRequest  # Импорт моделей из models.py
+from models import db, User, RepairRequest 
 from flask import redirect, request
 from flask import render_template, request, redirect, url_for
 app = Flask(__name__)
 from datetime import datetime
 from flask_migrate import Migrate
-
+from flask import session
 # Конфигурация базы данных
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///repair_requests.db'
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -35,9 +35,6 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
 
-# Остальной код ваших маршрутов...
-
-
 # Маршрут для отображения страницы входа
 @app.route('/')
 def index():
@@ -54,9 +51,6 @@ def register_page():
 def requests_page():
     return render_template('requests.html')
 
-
-
-
 # Загрузка пользователя
 @login_manager.user_loader
 def load_user(user_id):
@@ -66,10 +60,10 @@ def load_user(user_id):
 def add_user():
   
 
-    data = request.json  # Ожидается JSON в запросе
+    data = request.json 
     username = data.get('username')
     password = data.get('password')
-    role = data.get('role', 'user')  # По умолчанию роль будет "user", если не указано
+    role = data.get('role', 'user') 
 
     if User.query.filter_by(username=username).first():
         return jsonify({'message': 'User already exists'}), 400
@@ -87,10 +81,6 @@ def add_user():
 with app.app_context():
     db.create_all()
 
-# Маршрут для отображения фронтенда
-
-
-# Регистрация пользователя
 # Регистрация пользователя
 @app.route('/register', methods=['POST'])
 def register():
@@ -98,7 +88,7 @@ def register():
         data = request.json
         username = data.get('username')
         password = data.get('password')
-        role = data.get('role')  # admin or user
+        role = data.get('role') 
 
         if User.query.filter_by(username=username).first():
             return jsonify({'message': 'User already exists'}), 400
@@ -132,7 +122,7 @@ def login():
         if user is None or not user.check_password(password):
             return jsonify({'message': 'Invalid credentials'}), 401
 
-        # Если все в порядке, вернем успешный ответ
+       
         return jsonify({'message': 'Login successful'}), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 500
@@ -155,7 +145,7 @@ def create_request():
     
     new_request = RepairRequest(
         request_number=data['request_number'],
-        date_added=date_added,  # Устанавливаем дату
+        date_added=date_added, 
         equipment_type=data['equipment_type'],
         issue_type=data['issue_type'],
         description=data['description'],
@@ -186,7 +176,7 @@ def get_requests():
         'status': req.status,
         'responsible_person': req.responsible_person,
         'comments': req.comments,
-        'date_added': req.date_added.isoformat() if req.date_added else None,  # Преобразование даты
+        'date_added': req.date_added.isoformat() if req.date_added else None,  
         'completed_at': req.completed_at,
     } for req in requests]), 200
 
@@ -201,7 +191,7 @@ def get_or_update_request(id):
         return jsonify({'message': 'Request not found'}), 404
 
     if request.method == 'GET':
-        # Возвращаем данные заявки для редактирования
+       
         return jsonify({
             'request_number': req.request_number,
            
@@ -221,7 +211,7 @@ def get_or_update_request(id):
    
     if 'status' in data:
         req.status = data['status']
-        if req.status == 'Выполнено' and req.completed_at is None:  # Устанавливаем время завершения
+        if req.status == 'Выполнено' and req.completed_at is None: 
             req.completed_at = datetime.utcnow()
 
     if 'responsible_person' in data:

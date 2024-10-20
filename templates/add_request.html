@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Repair Request</title>
     <style>
-        /* Reuse styles */
+       
         body {
             font-family: Arial, sans-serif;
             background-color: #f3f3f3;
@@ -71,12 +71,12 @@
 
     <script>
         window.onload = function() {
-            // Generate a unique request number (You might want to fetch the last number from the database)
-            const requestNumber = Date.now(); // Simple unique number based on timestamp
+           
+            const requestNumber = Date.now(); 
             document.getElementById('request_number').value = requestNumber;
 
-            // Set the current date as the date added
-            const now = new Date().toISOString().slice(0, 19); // Формат: YYYY-MM-DDTHH:MM:SS
+           
+            const now = new Date().toISOString().slice(0, 19); 
             document.getElementById('date_added').value = now;
         };
 
@@ -108,7 +108,7 @@
 
                 if (response.ok) {
                     alert('Request added successfully!');
-                    // Redirect back to the main requests page
+                  
                     window.location.href = '/requests_page';
                 } else {
                     alert('Failed to add request');

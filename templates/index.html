@@ -36,14 +36,14 @@
             const data = await response.json();
             if (response.ok) {
                 alert('Login successful!');
-                window.location.href = '/requests_page';  // Redirect to requests page
+                window.location.href = '/requests_page';  
             } else {
                 alert('Login failed: ' + data.message);
             }
         });
 
         document.getElementById('registerButton').addEventListener('click', () => {
-            window.location.href = '/register_page';  // Redirect to register page
+            window.location.href = '/register_page';  
         });
     </script>
 </body>

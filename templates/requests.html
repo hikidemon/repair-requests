@@ -51,7 +51,7 @@
         }
 
         .request-card.active {
-            border-color: #ff6347;  /* Color when the request is active */
+            border-color: #ff6347; 
         }
 
         .request-actions {
@@ -166,7 +166,7 @@
             margin: 10px 0;
         }
         .statistics-container {
-            border: 2px solid #4b0082; /* Фиолетовая рамка */
+            border: 2px solid #4b0082; 
             border-radius: 10px;
             padding: 20px;
             margin: 20px 0;
@@ -181,17 +181,17 @@
 
         .statistics-row {
             display: flex;
-            justify-content: space-around; /* Разместить элементы равномерно */
+            justify-content: space-around; 
             align-items: center;
         }
 
         .statistics-row p {
-            margin: 0 20px; /* Добавляем отступы между элементами */
+            margin: 0 20px; 
             font-size: 16px;
         }
 
         .highlight {
-            color: #4b0082; /* Фиолетовый цвет для выделенных данных */
+            color: #4b0082; 
             font-weight: bold;
         }
 
@@ -245,13 +245,12 @@
         }
         const requests = await response.json();
         const container = document.getElementById('requestsContainer');
-        container.innerHTML = '';  // Clear the container
-
+        container.innerHTML = '';  
         requests.forEach(req => {
             const requestDiv = document.createElement('div');
             requestDiv.classList.add('request-card');
 
-            // Проверка на корректность даты и форматирование
+           
             let formattedDate;
             if (req.date_added) {
                 const date = new Date(req.date_added);
@@ -260,7 +259,7 @@
                 formattedDate = 'Дата не указана';
             }
 
-            // Information about the request
+           
             requestDiv.innerHTML = `
                 <p><strong>Request #${req.request_number}</strong></p>
                 <p>Equipment: ${req.equipment_type}</p>
@@ -280,7 +279,7 @@
             container.appendChild(requestDiv);
         });
 
-        // Вычисление статистики после загрузки запросов
+       
         calculateStatistics(requests);
     } catch (error) {
         console.error('Error loading requests:', error);
@@ -300,7 +299,7 @@
                 }
                 const request = await response.json();
 
-                // Populate the edit form with existing request data
+                
                 editForm.innerHTML = `
                 <textarea id="description-${id}" placeholder="Description">${request.description}</textarea>
                 <select id="status-${id}" onchange="toggleCompletedAtField(${id})">
@@ -319,11 +318,11 @@
             editForm.innerHTML += `<button onclick="saveChanges(${id})">Save Changes</button>`;
 
 
-                // Position the edit form next to the request card
-                formContainer.style.display = 'flex';  // Show the edit form container
+               
+                formContainer.style.display = 'flex';  
                 formContainer.style.position = 'absolute';
-                formContainer.style.left = `${requestCard.offsetLeft + requestCard.offsetWidth + 20}px`; // Position it next to the request card
-                formContainer.style.top = `${requestCard.offsetTop}px`; // Align top with request card
+                formContainer.style.left = `${requestCard.offsetLeft + requestCard.offsetWidth + 20}px`; 
+                formContainer.style.top = `${requestCard.offsetTop}px`; 
             } catch (error) {
                 console.error('Error loading request for editing:', error);
             }
@@ -347,7 +346,7 @@
     notificationDiv.innerText = message;
     notificationContainer.appendChild(notificationDiv);
 
-    // Auto-remove notification after 5 seconds
+  
     setTimeout(() => {
         notificationDiv.remove();
     }, 5000);
@@ -389,7 +388,7 @@
                 description: description,
                 status: status,
                 responsible_person: responsiblePerson,
-                completed_at: completedAt // Передаем completed_at в тело запроса
+                completed_at: completedAt 
             })
         });
 
@@ -443,7 +442,7 @@
 
         function hideEditForm() {
             const formContainer = document.getElementById('editFormContainer');
-            formContainer.style.display = 'none';  // Hide the form
+            formContainer.style.display = 'none'; 
         }
         function calculateAverageTime(requests) {
     let totalTime = 0; 
@@ -454,7 +453,7 @@
             const createdTime = new Date(req.date_added);
             const completedTime = new Date(req.completed_at);
             if (!isNaN(createdTime.getTime()) && !isNaN(completedTime.getTime())) {
-                const timeDifference = (completedTime - createdTime) / (1000 * 60); // Разница в минутах
+                const timeDifference = (completedTime - createdTime) / (1000 * 60); 
                 totalTime += timeDifference;
                 completedCount++;
             } else {
@@ -473,12 +472,12 @@
         let issueStatistics = {};
 
         requests.forEach(req => {
-            // Подсчитываем количество завершённых заявок
+           
             if (req.status === "Выполнено") {
                 completedCount++;
             }
 
-            // Подсчёт статистики по типам неисправностей
+           
             if (req.issue_type in issueStatistics) {
                 issueStatistics[req.issue_type]++;
             } else {
@@ -486,11 +485,11 @@
             }
         });
 
-        // Получаем среднее время выполнения
+       
         const averageTime = calculateAverageTime(requests);
-        console.log(`Average Time: ${averageTime}`); // Логируем среднее время
+        console.log(`Average Time: ${averageTime}`); 
 
-        // Обновляем данные в HTML
+       
         document.getElementById('completedCountValue').innerText = completedCount;
         document.getElementById('averageTimeValue').innerText = `${averageTime} минут`;
         document.getElementById('issueStatisticsValue').innerText = JSON.stringify(issueStatistics);
@@ -513,7 +512,7 @@ function calculateIssueStatistics(requests) {
 
         window.onload = () => {
             loadRequests();
-            // Simulate notifications every 10 seconds for demonstration purposes
+           
             setInterval(simulateStatusChange, 10000);
         };
     </script>

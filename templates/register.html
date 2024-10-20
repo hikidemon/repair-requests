@@ -25,7 +25,7 @@
 
     <script>
         document.getElementById('registerForm').addEventListener('submit', async (event) => {
-            event.preventDefault(); // Предотвращаем отправку формы
+            event.preventDefault(); 
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -41,7 +41,7 @@
 
             if (response.ok) {
                 alert('Registration successful!');
-                window.location.href = '/'; // Перенаправляем на страницу входа
+                window.location.href = '/'; 
             } else {
                 alert('Registration failed');
             }
